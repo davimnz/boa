@@ -1,0 +1,43 @@
+// RASCUNHO
+1. Y = sum( max(max, cs+distributor_order) ) // quanto a gente quer no grid
+2. Sanity check: available > Y? 
+
+Z = sum(cs) // quanto a gente tem no sistema
+
+injetar = Y - Z
+Cenario 1:
+x* = max(max, cs+distributor_order)
+hub = available - injetar
+
+1. Tira CDDs que cs+distributor_order > max
+2. Tirar o distributor_order de available, para garantir que vai atender
+3. Roda balance para os demais com available reduzido
+4. Deixar hub com resto
+
+
+// INICIO AQUI
+Cenario 1:
+Tira hub dos xi
+min sum((xi - maxi)^2)
+st sum(xi) = sum(cs_i)
+   x_i_dist >= cs_i + order_i
+hub = available - (sum(xi) - sum(cs))
+
+Cenario 2:
+min sum((xi - rpi)^2)
+st sum(xi) = sum(cs_i) + remaining_stock
+   x_i_dist >= cs_i + order_i
+
+Cenario 3:
+remaining_stock = available + hub - min
+hub = min
+
+min sum((xi - rpi)^2)
+st sum(xi) = sum(cs_i) + remaining_stock
+   x_i_dist <= cs_i + order_i
+
+
+Cenario 4:
+min sum((xi - rpi)^2)
+st sum(xi) = sum(cs_i) + remaining_stock
+   x_i_dist <= cs_i + order_i
