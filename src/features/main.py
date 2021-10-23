@@ -2,7 +2,16 @@ import pandas as pd
 import numpy as np
 
 
-def generate_positions(max_latitude=51.3494, min_latitude=49.5677,
+def clear_inf(raw_data):
+    """
+    Deletes rows with inf values
+    """
+    raw_data.replace([np.inf, -np.inf], np.nan, inplace=True)
+    raw_data.dropna(inplace=True)
+
+
+def generate_positions(raw_data,
+                       max_latitude=51.3494, min_latitude=49.5677,
                        max_longitude=5.8641, min_longitude=2.6622):
     """
     Generates latitude and longitude for supply sites and locations.
@@ -12,7 +21,6 @@ def generate_positions(max_latitude=51.3494, min_latitude=49.5677,
     max longitude (Belgium: 5.8641
     min longitude (Belgium): 2.6622
     """
-    raw_data = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
     num_rows = raw_data.shape[0]
     latitude = np.random.uniform(min_latitude, max_latitude, num_rows)
     longitude = np.random.uniform(min_longitude, max_longitude, num_rows)
@@ -22,4 +30,6 @@ def generate_positions(max_latitude=51.3494, min_latitude=49.5677,
 
 
 if __name__ == "__main__":
-    generate_positions()
+    raw_data = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
+    clear_inf(raw_data)
+    generate_positions(raw_data)
