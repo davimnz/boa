@@ -3,26 +3,52 @@ import pandas as pd
 
 class DataSet:
     def __init__(self):
-        self.data = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
+        self.data = pd.read_csv('../../data/data.csv', delimiter=';', decimal=',')
 
-    def get_grid(self, supplier='PL-1505', sku=85023):
-        supplier = self.data[self.data['Supply Site Code'] == supplier]
-        grid = supplier[supplier['SKU'] == sku]
-        return grid
+    def select_grid(self, supplier='PL-1505', sku=85023):
+        return Grid(self.data, supplier, sku)
+    
+    def list_grids(self):
+        columns = ['Supply Site Code', 'SKU', 'Scenario']
+        return self.data.drop_duplicates(columns)[columns]
 
-    def get_depots(self, supplier='PL-1505', sku=85023, remove_hub=False):
-        grid = self.get_grid(supplier, sku)
-        depots = grid[grid['Location Type'] == 'DEP']
-        depots = depots[depots['Location Code'] != supplier]
-        return depots
 
-    def get_hub(self, supplier='PL-1505', sku=85023):
-        grid = self.get_grid(supplier, sku)
-        hub = grid[grid['Location Code'] == supplier]
-        return hub
+class Grid:
+    def __init__(self, data, supplier, sku):
+        supplier_data = data[data['Supply Site Code'] == supplier]
+        self.grid = supplier_data[supplier_data['SKU'] == sku]
+        depots_including_hub = self.grid[self.grid['Location Type'] == 'DEP']
+        self.dep = depots_including_hub[depots_including_hub['Location Code'] != supplier]
+        self.hub = self.grid[self.grid['Location Code'] == supplier]
+        self.dist = self.grid[self.grid['Location Type'] == 'DIST']
 
-    def get_dist(self, supplier='PL-1505', sku=85023, remove_hub=False):
-        grid = self.get_grid(supplier, sku)
-        depots = grid[grid['Location Type'] == 'DIST']
-        dists = depots[depots['Location Code'] != supplier]
-        return dists
+    def get_current_stock(self):
+        CURRENT_STOCK_LABEL = 'Closing Stock'
+        return self.dist[CURRENT_STOCK_LABEL].values, self.dep[CURRENT_STOCK_LABEL].values, self.hub[CURRENT_STOCK_LABEL].values
+
+    def get_max_stock(self):
+        MAX_LABEL = "MaxDOC (Hl)"
+        return self.dist[MAX_LABEL].values, self.dep[MAX_LABEL].values, self.hub[MAX_LABEL].values
+
+    def get_min_stock(self):
+        MIN_LABEL = "MinDOC (Hl)"
+        return self.dist[MIN_LABEL].values, self.dep[MIN_LABEL].values, self.hub[MIN_LABEL].values
+
+    def get_reorder_point(self):
+        REORDER_POINT_LABEL = "Reorder Point (Hl)"
+        return  self.dist[REORDER_POINT_LABEL].values, self.dep[REORDER_POINT_LABEL].values, self.hub[REORDER_POINT_LABEL].values
+
+    def get_available(self):
+        AVAILABLE_LABEL = 'Available to Deploy'
+        return self.hub[AVAILABLE_LABEL].values
+
+    def get_orders(self):
+        ORDERS_LABEL = 'Distributor Orders'
+        return self.dist[ORDERS_LABEL].values
+
+    def get_sizes(self):
+        return len(self.dist), len(self.dep)
+
+    def get_location_codes(self):
+        LOCATION_CODE_LABEL = 'Location Code'
+        return self.dist[LOCATION_CODE_LABEL].values, self.dep[LOCATION_CODE_LABEL].values
