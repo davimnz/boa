@@ -14,9 +14,6 @@ for _, g in grids.iterrows():
     supplier = g['Supply Site Code']
     sku = g['SKU']
     scenario = g['Scenario']
-    # TODO
-    if scenario == 0:
-        continue
     
     grid = dataset.select_grid(supplier = supplier, sku = sku)
     # TODO: no hub

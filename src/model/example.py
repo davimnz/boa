@@ -7,6 +7,10 @@ from output import Output
 
 dataset = DataSet()
 
+supplier = 'PL-1601'
+sku = 92102
+scenario = 0
+
 # supplier = 'PL-1721'
 # sku = 85735
 # scenario = 1
@@ -19,9 +23,9 @@ dataset = DataSet()
 # sku = 85023
 # scenario = 3
 
-supplier = 'PL-1505'
-sku = 88840
-scenario = 4
+# supplier = 'PL-1505'
+# sku = 88840
+# scenario = 4
 
 grid = dataset.select_grid(supplier = supplier, sku = sku)
 
