@@ -71,7 +71,7 @@ class Scenario0Solver (Solver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
+        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
 class Scenario1Solver (Solver):
     def __init__(self, grid):
@@ -112,7 +112,8 @@ class Scenario1Solver (Solver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h, A=A, b=b)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
+        print(x_opt)
+        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
 
 class Scenario2Solver (Solver):
@@ -156,7 +157,7 @@ class Scenario2Solver (Solver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
+        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
 
 class Scenario3Solver (Solver):
@@ -201,7 +202,7 @@ class Scenario3Solver (Solver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], hub[0]
+        return x_opt[:dist_size], x_opt[dist_size:], hub[0]
 
 
 class Scenario4Solver (Solver):
@@ -254,4 +255,4 @@ class Scenario4Solver (Solver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
+        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]

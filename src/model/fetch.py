@@ -26,6 +26,10 @@ class Grid:
         CURRENT_STOCK_LABEL = 'Closing Stock'
         return self.dist[CURRENT_STOCK_LABEL].values, self.dep[CURRENT_STOCK_LABEL].values, self.hub[CURRENT_STOCK_LABEL].values
 
+    def get_total_current_stock(self):
+        dist, dep, hub = self.get_current_stock()
+        return np.hstack([dist, dep, hub])
+
     def get_max_stock(self):
         MAX_LABEL = "MaxDOC (Hl)"
         return self.dist[MAX_LABEL].values, self.dep[MAX_LABEL].values, self.hub[MAX_LABEL].values

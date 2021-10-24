@@ -24,6 +24,14 @@ def cvxopt_solve_qp(P, q, G=None, h=None, A=None, b=None):
         return None
     return np.array(sol['x']).reshape((P.shape[1],))
 
+# wrapper do cvxopt
+def cvxopt_solve_lp(c, G, h, A=None, b=None):
+    args = [cvxopt.matrix(c), cvxopt.matrix(G), cvxopt.matrix(h)]
+    if A is not None:
+        args.extend([cvxopt.matrix(A), cvxopt.matrix(b)])
+    sol = cvxopt.solvers.lp(*args)
+    return np.array(sol['x']).reshape((c.shape[0],))
+
 class QPSolver:
     def __init__(self, preferred_solver):
         self.preferred_solves_count = 0
@@ -73,5 +81,5 @@ class QPSolver:
 
 
 def print_vector(x):
-    with np.printoptions(precision=4, suppress=True, formatter={'float': '{:0.4f}'.format}, linewidth=100):
+    with np.printoptions(precision=4, suppress=True, linewidth=100):
         print(x)
