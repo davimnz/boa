@@ -20,7 +20,7 @@ dataset = DataSet()
 # scenario = 3
 
 supplier = 'PL-1505'
-sku = 86631
+sku = 88840
 scenario = 4
 
 grid = dataset.select_grid(supplier = supplier, sku = sku)

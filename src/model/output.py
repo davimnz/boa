@@ -6,7 +6,9 @@ class Output:
     def add_data(self, supplier, sku, location_type, location_codes, x_opt):
         data = [ [supplier, sku, location_type, lc, x] for (lc, x) in zip(location_codes, x_opt)]
         new_df = pd.DataFrame(data, columns = ['supplier', 'sku', 'location_type', 'location_code', 'x_opt'])
-
+        self.update(new_df)
+    
+    def update(self, new_df):
         if self.df is None:
             self.df = new_df
         else:

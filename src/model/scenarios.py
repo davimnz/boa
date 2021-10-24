@@ -146,7 +146,7 @@ class Scenario3Solver (Solver):
         h[2:] = (orders + current_stock_dist)
         
         x_opt = cvxopt_solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:dep_size], hub
+        return x_opt[:dist_size], x_opt[dist_size:dep_size], hub[0]
 
 
 class Scenario4Solver (Solver):
