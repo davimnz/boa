@@ -33,7 +33,7 @@ class Scenario0Solver (Solver):
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
         max_dist, max_dep, max_hub = self.grid.get_max_stock()
         current_stock_dist, current_stock_dep, current_stock_hub = self.grid.get_current_stock()
@@ -70,14 +70,14 @@ class Scenario0Solver (Solver):
         G = np.vstack([G, -np.identity(k)])
         h = np.hstack([h, np.zeros(k)])
         
-        x_opt = cvxopt_solve_qp(P, q, G=G, h=h)
+        x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
 
 class Scenario1Solver (Solver):
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
         max_dist, max_dep, max_hub = self.grid.get_max_stock()
         current_stock_dist, current_stock_dep, current_stock_hub = self.grid.get_current_stock()
@@ -111,7 +111,7 @@ class Scenario1Solver (Solver):
         G = np.vstack([G, -np.identity(k)])
         h = np.hstack([h, np.zeros(k)])
         
-        x_opt = cvxopt_solve_qp(P, q, G=G, h=h, A=A, b=b)
+        x_opt = qpsolver.solve_qp(P, q, G=G, h=h, A=A, b=b)
         return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
 
 
@@ -119,7 +119,7 @@ class Scenario2Solver (Solver):
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
         max_dist, max_dep, max_hub = self.grid.get_max_stock()
         current_stock_dist, current_stock_dep, current_stock_hub = self.grid.get_current_stock()
@@ -155,7 +155,7 @@ class Scenario2Solver (Solver):
         G = np.vstack([G, -np.identity(k)])
         h = np.hstack([h, np.zeros(k)])
         
-        x_opt = cvxopt_solve_qp(P, q, G=G, h=h)
+        x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
 
 
@@ -163,7 +163,7 @@ class Scenario3Solver (Solver):
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
         max_dist, max_dep, max_hub = self.grid.get_max_stock()
         current_stock_dist, current_stock_dep, current_stock_hub = self.grid.get_current_stock()
@@ -200,7 +200,7 @@ class Scenario3Solver (Solver):
         G = np.vstack([G, -np.identity(k)])
         h = np.hstack([h, np.zeros(k)])
         
-        x_opt = cvxopt_solve_qp(P, q, G=G, h=h)
+        x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         return x_opt[:dist_size], x_opt[dist_size:dep_size], hub[0]
 
 
@@ -208,7 +208,7 @@ class Scenario4Solver (Solver):
     def __init__(self, grid):
         self.grid = grid
 
-    def solve(self):
+    def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
         max_dist, max_dep, max_hub = self.grid.get_max_stock()
         current_stock_dist, current_stock_dep, current_stock_hub = self.grid.get_current_stock()
@@ -253,5 +253,5 @@ class Scenario4Solver (Solver):
         G = np.vstack([G, -np.identity(k)])
         h = np.hstack([h, np.zeros(k)])
         
-        x_opt = cvxopt_solve_qp(P, q, G=G, h=h)
+        x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         return x_opt[:dist_size], x_opt[dist_size:dep_size], x_opt[-1]
