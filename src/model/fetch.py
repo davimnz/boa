@@ -1,9 +1,21 @@
 import numpy as np
 import pandas as pd
+from constants import *
 
 class DataSet:
     def __init__(self):
         self.data = pd.read_csv('../../data/data.csv', delimiter=';', decimal=',')
+
+    def select_grid(self, supplier='PL-1505', sku=85023):
+        return Grid(self.data, supplier, sku)
+    
+    def list_grids(self):
+        columns = ['Supply Site Code', 'SKU', 'Scenario']
+        return self.data.drop_duplicates(columns)[columns]
+
+class OptimizedDataSet:
+    def __init__(self):
+        self.data = pd.read_csv('output_quadprog.csv')
 
     def select_grid(self, supplier='PL-1505', sku=85023):
         return Grid(self.data, supplier, sku)
@@ -23,7 +35,6 @@ class Grid:
         self.dist = self.grid[self.grid['Location Type'] == 'DIST']
 
     def get_current_stock(self):
-        CURRENT_STOCK_LABEL = 'Closing Stock'
         return self.dist[CURRENT_STOCK_LABEL].values, self.dep[CURRENT_STOCK_LABEL].values, self.hub[CURRENT_STOCK_LABEL].values
 
     def get_total_current_stock(self):
@@ -31,28 +42,25 @@ class Grid:
         return np.hstack([dist, dep, hub])
 
     def get_max_stock(self):
-        MAX_LABEL = "MaxDOC (Hl)"
         return self.dist[MAX_LABEL].values, self.dep[MAX_LABEL].values, self.hub[MAX_LABEL].values
 
     def get_min_stock(self):
-        MIN_LABEL = "MinDOC (Hl)"
         return self.dist[MIN_LABEL].values, self.dep[MIN_LABEL].values, self.hub[MIN_LABEL].values
 
     def get_reorder_point(self):
-        REORDER_POINT_LABEL = "Reorder Point (Hl)"
         return  self.dist[REORDER_POINT_LABEL].values, self.dep[REORDER_POINT_LABEL].values, self.hub[REORDER_POINT_LABEL].values
 
     def get_available(self):
-        AVAILABLE_LABEL = 'Available to Deploy'
         return self.hub[AVAILABLE_LABEL].values
 
     def get_orders(self):
-        ORDERS_LABEL = 'Distributor Orders'
         return self.dist[ORDERS_LABEL].values
 
     def get_sizes(self):
         return len(self.dist), len(self.dep)
+    
+    def get_xopt(self):
+        return self.dist[XOPT_LABEL].values, self.dep[XOPT_LABEL].values, self.hub[XOPT_LABEL].values
 
     def get_location_codes(self):
-        LOCATION_CODE_LABEL = 'Location Code'
         return self.dist[LOCATION_CODE_LABEL].values, self.dep[LOCATION_CODE_LABEL].values

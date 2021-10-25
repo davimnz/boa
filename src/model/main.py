@@ -4,6 +4,7 @@ from fetch import DataSet
 from scenarios import BalanceScenarioFactory
 from utils import print_vector, QPSolver
 from output import Output
+from step2 import Step2Solver
 
 dataset = DataSet()
 
@@ -29,9 +30,9 @@ def solve_all(solver, verbose=False):
             print_vector(x_opt_hub)
 
         dep_codes, dist_codes = grid.get_location_codes()
-        output.add_data(supplier, sku, 'DEPOT', dep_codes, x_opt_dep)
-        output.add_data(supplier, sku, 'DEPOT', [supplier], [x_opt_hub])
-        output.add_data(supplier, sku, 'DIST', dist_codes, x_opt_dist)
+        output.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
+        output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
+        output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
 
     output.print('output_' + solver + '.csv')
     print('Preferred solves:', qpsolver.preferred_solves_count)

@@ -23,7 +23,8 @@ Run `make all` to execute all source files if you have `make`. Otherwise, run th
   - Features
     - `preprocessing.py` removes useless data and generates geopositioning to sites.
   - Model
-    - `todo.py` todo
+    - `main.py` generates step 1 outputs with desired final stocks
+    - `calculate_exchanges` generates step 2 output with all the exhanges needed
   - Visualization
     - `visualization.py` plots stock balance metrics.
 
