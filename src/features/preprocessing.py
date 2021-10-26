@@ -25,6 +25,8 @@ def generate_positions(raw_data,
     supply_sites = raw_data['Supply Site Code'].unique()
     locations = raw_data['Location Code'].unique()
     codes = np.unique(np.concatenate((supply_sites, locations), 0))
+
+    np.random.seed(16)  # reproducibility
     latitude = np.random.uniform(min_latitude, max_latitude, len(codes))
     longitude = np.random.uniform(min_longitude, max_longitude, len(codes))
     distances['code'] = codes
