@@ -1,0 +1,12 @@
+CURRENT_STOCK_LABEL = 'Closing Stock'
+MAX_LABEL = "MaxDOC (Hl)"
+MIN_LABEL = "MinDOC (Hl)"
+AVAILABLE_LABEL = 'Available to Deploy'
+ORDERS_LABEL = 'Distributor Orders'
+LOCATION_CODE_LABEL = 'Location Code'
+REORDER_POINT_LABEL = "Reorder Point (Hl)"
+XOPT_LABEL = 'x_opt'
+SUPPLY_SITE_CODE_LABEL = 'Supply Site Code'
+SKU_LABEL = 'SKU'
+LOCATION_TYPE_LABEL = 'Location Type'
+SCENARIO_LABEL = 'Scenario'

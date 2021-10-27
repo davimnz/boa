@@ -1,35 +1,34 @@
-from utils import cvxopt_solve_qp
 import numpy as np
-from utils import get_pq
+from .utils import get_pq, cvxopt_solve_qp
 
-class Solver:
+class DistributionSolver:
     def solve(self):
         pass
 
-class SolverAbstractFactory:
-    def create(self, scenario) -> Solver:
+class DistributionSolverAbstractFactory:
+    def create(self, scenario) -> DistributionSolver:
         pass
 
-class SimpleSolverFactory (SolverAbstractFactory):
-    def create(self, scenario) -> Solver:
+class SimpleDistributionSolverFactory (DistributionSolverAbstractFactory):
+    def create(self, scenario) -> DistributionSolver:
         pass
 
-class BalanceScenarioFactory (SolverAbstractFactory):
-    def create(grid, scenario) -> Solver:
+class BalanceScenarioFactory (DistributionSolverAbstractFactory):
+    def create(grid, scenario) -> DistributionSolver:
         if scenario == 0:
-            return Scenario0Solver(grid)
+            return Scenario0DistributionSolver(grid)
         elif scenario == 1:
-            return Scenario1Solver(grid)
+            return Scenario1DistributionSolver(grid)
         elif scenario == 2:
-            return Scenario2Solver(grid)
+            return Scenario2DistributionSolver(grid)
         elif scenario == 3:
-            return Scenario3Solver(grid)
+            return Scenario3DistributionSolver(grid)
         elif scenario == 4:
-            return Scenario4Solver(grid)
+            return Scenario4DistributionSolver(grid)
         else:
             raise Exception('Scenario does not exist')
 
-class Scenario0Solver (Solver):
+class Scenario0DistributionSolver (DistributionSolver):
     def __init__(self, grid):
         self.grid = grid
 
@@ -73,7 +72,7 @@ class Scenario0Solver (Solver):
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
-class Scenario1Solver (Solver):
+class Scenario1DistributionSolver (DistributionSolver):
     def __init__(self, grid):
         self.grid = grid
 
@@ -116,7 +115,7 @@ class Scenario1Solver (Solver):
         return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
 
-class Scenario2Solver (Solver):
+class Scenario2DistributionSolver (DistributionSolver):
     def __init__(self, grid):
         self.grid = grid
 
@@ -160,7 +159,7 @@ class Scenario2Solver (Solver):
         return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
 
 
-class Scenario3Solver (Solver):
+class Scenario3DistributionSolver (DistributionSolver):
     def __init__(self, grid):
         self.grid = grid
 
@@ -205,7 +204,7 @@ class Scenario3Solver (Solver):
         return x_opt[:dist_size], x_opt[dist_size:], hub[0]
 
 
-class Scenario4Solver (Solver):
+class Scenario4DistributionSolver (DistributionSolver):
     def __init__(self, grid):
         self.grid = grid
 

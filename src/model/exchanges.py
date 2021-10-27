@@ -1,5 +1,5 @@
 import numpy as np
-from utils import print_vector, cvxopt_solve_lp
+from .utils import print_vector, cvxopt_solve_lp
 import time
 from scipy.optimize import linprog
 class ExchangesSolver:

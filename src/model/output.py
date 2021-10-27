@@ -1,5 +1,7 @@
 import pandas as pd
-from constants import *
+from .constants import *
+import numpy as np
+
 class DistributionOutput:
     def __init__(self):
         self.df = None
@@ -24,11 +26,23 @@ class ExchangesOutput:
     def __init__(self):
         self.df = None
 
-    def add_data(self, supplier, sku, location_type, location_codes, scenario, x_opt):
-        data = [ [supplier, sku, location_type, lc, scenario, x] for (lc, x) in zip(location_codes, x_opt)]
+    def add_data(self, supplier, sku, location_codes, from_supply, exchanges):
+        data = [ [supplier, sku, 'Available', d, x] for (d, x) in zip(location_codes, from_supply) if x != 0]
+        np.save( 'test', exchanges)
+
+        nonzero_indexes = np.where(abs(exchanges)>1e-3)
+        nonzero_x = nonzero_indexes[0]
+        nonzero_y = nonzero_indexes[1]
+
+        for k in range(len(nonzero_x)):
+            x = nonzero_x[k]
+            y = nonzero_y[k]
+            data.append([supplier, sku, location_codes[x], location_codes[y], exchanges[x, y]])
+
+       
         new_df = pd.DataFrame(data, 
-            columns = [SUPPLY_SITE_CODE_LABEL, SKU_LABEL, LOCATION_TYPE_LABEL, 
-                        LOCATION_CODE_LABEL, SCENARIO_LABEL, XOPT_LABEL])
+            columns = [SUPPLY_SITE_CODE_LABEL, SKU_LABEL, 'Origin', 
+                        'Destiny', 'Amount'])
         self.update(new_df)
     
     def update(self, new_df):

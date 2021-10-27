@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from constants import *
-from distance import distance
+from .constants import *
+from .distance import distance
 DATA_FILE = 'data/data.csv'
 DISTANCE_FILE = 'data/distance.csv'
 
