@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
-from fetch import OptimizedDataSet
-from scenarios import BalanceScenarioFactory
-from utils import print_vector, QPSolver
-from output import Output
-from step2 import Step2Solver
+from features.fetch import OptimizedDataSet
+from model.scenarios import BalanceScenarioFactory
+from model.utils import print_vector, QPSolver
+from model.output import Output
+from model.exchanges import ExchangesSolver
 
 dataset = OptimizedDataSet()
 
