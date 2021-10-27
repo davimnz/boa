@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
-from fetch import DataSet
-from scenarios import BalanceScenarioFactory
-from utils import print_vector, QPSolver
-from output import Output
-from step2 import Step2Solver
+from features.fetch import DataSet
+from model.scenarios import BalanceScenarioFactory
+from model.utils import print_vector, QPSolver
+from model.output import DistributionOutput
+from model.exchanges import ExchangesSolver
 
 dataset = DataSet()
 
 def solve_all(solver, verbose=False):
-    output = Output()
+    output = DistributionOutput()
     grids = dataset.list_grids()
     qpsolver = QPSolver(solver)
     print('\nStarting with solver', solver)
