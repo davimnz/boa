@@ -18,10 +18,9 @@ We chose the reference stock based on the scenario of a grid.
 todo
 
 
-#### Solution Architecture
+### Solution Architecture
 
 ![](figures/readme/architecture.svg)
-
 
 ## Dependencies
 Install the requirements in `requirements.txt` in a virtual environment, such as `venv`. [You can find venv installation guide here.](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
