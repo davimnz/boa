@@ -3,7 +3,7 @@ import numpy as np
 from features.fetch import DataSet
 from model.scenarios import BalanceScenarioFactory
 from model.utils import print_vector, QPSolver
-from model.output import DistributionOutput
+from features.output import DistributionOutput
 from model.exchanges import ExchangesSolver
 
 dataset = DataSet()
@@ -30,11 +30,13 @@ def solve_all(solver, verbose=False):
             print_vector(x_opt_hub)
 
         dep_codes, dist_codes = grid.get_location_codes()
-        output.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
-        output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
-        output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
+        current_stock_dist, current_stock_dep, current_stock_hub = grid.get_current_stock()
+        available = grid.get_available()
+        output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist, current_stock_dist, available)
+        output.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep, current_stock_dep, available)
+        output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub], current_stock_hub, available)
 
-    output.print('output_' + solver + '.csv')
+    output.print('output/distribution_output_' + solver + '.csv')
     print('Preferred solves:', qpsolver.preferred_solves_count)
     print('Fallback solves:', qpsolver.fallback_solves_count)
     times = qpsolver.get_times()

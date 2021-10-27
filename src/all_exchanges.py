@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
-from features.fetch import OptimizedDataSet
+from features.fetch import DataSet
 from model.scenarios import BalanceScenarioFactory
 from model.utils import print_vector, QPSolver
-from features.output import Output
+from features.output import ExchangesOutput
 from model.exchanges import ExchangesSolver
 
-dataset = OptimizedDataSet()
+dataset = DataSet('output_quadprog.csv')
 
 def solve_all(verbose=False):
-    output = Output()
+    exchangesOutput = ExchangesOutput()
     grids = dataset.list_grids()
 
     for _, g in grids.iterrows():
@@ -17,10 +17,13 @@ def solve_all(verbose=False):
         sku = g['SKU']
         grid = dataset.select_grid(supplier = supplier, sku = sku)
         x_opt_dist, x_opt_dep, x_opt_hub = grid.get_xopt()
-        from_supply, exchanges = Step2Solver(grid, x_opt_dist, x_opt_dep, x_opt_hub).solve()
-        # output_step_2.add_data(from_supply, exchanges)
+        supplier_distances = grid.get_supplier_distances()
+        destination_distances = grid.get_destination_distances()
+        location_codes = grid.get_all_location_codes()
+        from_supply, exchanges = ExchangesSolver(grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances).solve()
+        exchangesOutput.add_data(supplier, sku, location_codes, from_supply, exchanges)
 
-    output.print('output_step2.csv')
+    exchangesOutput.print('output/exchanges_output.csv')
 
 
 solve_all()

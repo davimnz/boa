@@ -6,8 +6,8 @@ DATA_FILE = 'data/data.csv'
 DISTANCE_FILE = 'data/distance.csv'
 
 class DataSet:
-    def __init__(self):
-        self.data = pd.read_csv(DATA_FILE, delimiter=';', decimal=',')
+    def __init__(self, data_file = DATA_FILE):
+        self.data = pd.read_csv(data_file, delimiter=';', decimal=',')
         self.distances = pd.read_csv(DISTANCE_FILE, delimiter=';', decimal=',')
 
     def get_distance(self, a, b):
@@ -23,18 +23,6 @@ class DataSet:
     def list_grids(self):
         columns = ['Supply Site Code', 'SKU', 'Scenario']
         return self.data.drop_duplicates(columns)[columns]
-
-class OptimizedDataSet:
-    def __init__(self):
-        self.data = pd.read_csv('output_quadprog.csv')
-
-    def select_grid(self, supplier='PL-1505', sku=85023):
-        return Grid(self.data, supplier, sku)
-    
-    def list_grids(self):
-        columns = ['Supply Site Code', 'SKU', 'Scenario']
-        return self.data.drop_duplicates(columns)[columns]
-
 
 class Grid:
     def __init__(self, data, supplier, sku, dataset):
