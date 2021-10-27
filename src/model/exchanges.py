@@ -2,7 +2,7 @@ import numpy as np
 from utils import print_vector, cvxopt_solve_lp
 import time
 from scipy.optimize import linprog
-class Step2Solver:
+class ExchangesSolver:
     def __init__(self, grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances):
         self.grid = grid
         self.x_opt = np.hstack([x_opt_dist, x_opt_dep, x_opt_hub])

@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 from fetch import DataSet
 from scenarios import BalanceScenarioFactory
-from output import Output
+from output import DistributionOutput, ExchangesOutput
 from utils import print_vector, QPSolver
-from step2 import Step2Solver
+from exchanges import ExchangesSolver
 dataset = DataSet()
 
 # supplier = 'PL-1601'
@@ -35,12 +35,12 @@ x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(grid, scenario=
 # print_vector(x_opt_dep)
 # print_vector(x_opt_hub)
 
-output = Output()
+distributionOutput = DistributionOutput()
 dep_codes, dist_codes = grid.get_location_codes()
-output.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
-output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
-output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
-output.print('output.csv')
+distributionOutput.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
+distributionOutput.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
+distributionOutput.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
+distributionOutput.print('output.csv')
 
 n = len(x_opt_dist) + len(x_opt_dep) + 1
 codes = np.concatenate([dist_codes, dep_codes, [supplier]])
@@ -51,7 +51,7 @@ print('Distancias ao destino')
 destination_distances = np.matrix([[dataset.get_distance(x, y) for x in codes] for y in codes])
 print_vector(destination_distances)
 
-from_supply, exchanges = Step2Solver(grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances).solve()
+from_supply, exchanges = ExchangesSolver(grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances).solve()
 
 xopt = np.hstack([x_opt_dist, x_opt_dep, [x_opt_hub]])
 n = len(from_supply)
