@@ -35,12 +35,19 @@ def plot_stock_grid(data, position, supply_site_code, sku_code) -> None:
     positions = {}
     labels = {}
     colors = []
-    color_dict = {"DEP": "#3f60e1", "DIST": "#60e13f", "HUB": "#e13f60"}
+    color_dict = {"DEP": "#3f60e1",
+                  "DIST": "#60e13f",
+                  "HUB": "#e13f60",
+                  "DEPOT": '#3f60e1'}
+
+    location_index = grid_table.columns.to_list().index('Location Code')
+    stock_index = grid_table.columns.to_list().index('Closing Stock')
+    type_index = grid_table.columns.to_list().index('Location Type')
 
     for row in grid_table.itertuples():
-        location_code = row[3]
-        stock = round(row[8])
-        type = row[4]
+        location_code = row[location_index + 1]
+        stock = round(row[stock_index + 1])
+        type = row[type_index + 1]
 
         if location_code == supply_site_code:
             color = color_dict["HUB"]
@@ -168,6 +175,8 @@ def plot_exchange_map(data, exchange, position,
 
 if __name__ == "__main__":
     unbalanced = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
+    balanced = pd.read_csv('output/distribution_output_cvxopt.csv',
+                           delimiter=';', decimal=',')
     position = pd.read_csv('data/distance.csv', delimiter=';', decimal=',')
     exchange = pd.read_csv('output/exchanges_output.csv',
                            delimiter=';', decimal=',')
@@ -176,6 +185,8 @@ if __name__ == "__main__":
     supply_site_code = 'PL-1505'
     sku_code = 85023
 
-    # plot_stock_grid(unbalanced, position, supply_site_code, sku_code)
+    # plots unbalanced grid, balanced grid, and exchange map
+    plot_stock_grid(unbalanced, position, supply_site_code, sku_code)
+    plot_stock_grid(balanced, position, supply_site_code, sku_code)
     plot_exchange_map(unbalanced, exchange, position,
                       supply_site_code, sku_code)
