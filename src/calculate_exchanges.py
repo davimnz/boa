@@ -3,7 +3,7 @@ import numpy as np
 from features.fetch import OptimizedDataSet
 from model.scenarios import BalanceScenarioFactory
 from model.utils import print_vector, QPSolver
-from model.output import Output
+from features.output import Output
 from model.exchanges import ExchangesSolver
 
 dataset = OptimizedDataSet()

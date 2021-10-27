@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from features.fetch import DataSet
 from model.scenarios import BalanceScenarioFactory
-from model.output import DistributionOutput, ExchangesOutput
+from features.output import DistributionOutput, ExchangesOutput
 from model.utils import print_vector, QPSolver
 from model.exchanges import ExchangesSolver
 dataset = DataSet()
@@ -36,7 +36,7 @@ x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(grid, scenario=
 # print_vector(x_opt_hub)
 
 distributionOutput = DistributionOutput()
-dep_codes, dist_codes = grid.get_location_codes()
+dist_codes, dep_codes = grid.get_location_codes()
 distributionOutput.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
 distributionOutput.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
 distributionOutput.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
@@ -44,6 +44,8 @@ distributionOutput.print('output.csv')
 
 n = len(x_opt_dist) + len(x_opt_dep) + 1
 location_codes = np.concatenate([dist_codes, dep_codes, [supplier]])
+print(dist_codes)
+print(location_codes)
 supplier_distances = np.matrix([dataset.get_distance(supplier, x) for x in location_codes]).reshape(1, n)
 print('Distancias do fornecedor')
 print_vector(supplier_distances)
@@ -57,6 +59,8 @@ exchangesOutput.add_data(supplier, sku, location_codes, from_supply, exchanges)
 exchangesOutput.print('exchanges_output.csv')
 
 xopt = np.hstack([x_opt_dist, x_opt_dep, [x_opt_hub]])
+print('Estoque otimizado')
+print_vector(xopt)
 n = len(from_supply)
 deltas = np.zeros((n))
 for i in range(n):
