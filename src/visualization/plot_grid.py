@@ -97,9 +97,12 @@ def plot_exchange_map(data, exchange, position,
     colors = {}
     color_dict = {"DEP": "#3f60e1", "DIST": "#60e13f", "HUB": "#e13f60"}
 
+    location_index = grid_table.columns.to_list().index('Location Code')
+    type_index = grid_table.columns.to_list().index('Location Type')
+
     for row in grid_table.itertuples():
-        location_code = row[3]
-        type = row[4]
+        location_code = row[location_index + 1]
+        type = row[type_index + 1]
 
         if location_code == supply_site_code:
             color = color_dict["HUB"]
@@ -115,10 +118,15 @@ def plot_exchange_map(data, exchange, position,
         grid.add_node(key, stock=value)
 
     nodes_with_edges = []
+
+    origin_index = exchange_table.columns.to_list().index('Origin')
+    destiny_index = exchange_table.columns.to_list().index('Destiny')
+    amount_index = exchange_table.columns.to_list().index('Amount')
+
     for row in exchange_table.itertuples():
-        origin = row[3]
-        destiny = row[4]
-        amount = round(row[5])
+        origin = row[origin_index + 1]
+        destiny = row[destiny_index + 1]
+        amount = round(row[amount_index + 1])
 
         if origin == "Available":
             origin = supply_site_code
