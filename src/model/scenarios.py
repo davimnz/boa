@@ -229,6 +229,12 @@ class Scenario4DistributionSolver (DistributionSolver):
                 M[dist_size + i, dist_size + i] = 1/reorder_point_dep[i]
             else: 
                 M[dist_size + i, dist_size + i] = 1000
+        if reorder_point_hub>1e-3:
+            M[-1, -1] = 1/reorder_point_hub
+        else: 
+            M[-1, -1] = 1000
+
+        # print(M)
         n = np.ones(k)
         # Transforma para a forma padrão
         P, q = get_pq(M, n)

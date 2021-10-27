@@ -23,11 +23,12 @@ scenario = 1
 # sku = 85023
 # scenario = 3
 
-# supplier = 'PL-1505'
-# sku = 88840
+# supplier = 'PL-1901'
+# sku = 85001
 # scenario = 4
 
 grid = dataset.select_grid(supplier = supplier, sku = sku)
+
 qpsolver = QPSolver('quadprog')
 
 x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(grid, scenario=scenario).solve(qpsolver)
@@ -37,9 +38,11 @@ x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(grid, scenario=
 
 distributionOutput = DistributionOutput()
 dist_codes, dep_codes = grid.get_location_codes()
-distributionOutput.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
-distributionOutput.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
-distributionOutput.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
+current_stock_dist, current_stock_dep, current_stock_hub = grid.get_current_stock()
+available = grid.get_available()
+distributionOutput.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist, current_stock_dist, available)
+distributionOutput.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep, current_stock_dep, available)
+distributionOutput.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub], current_stock_hub, available)
 distributionOutput.print('output.csv')
 
 n = grid.get_size()
