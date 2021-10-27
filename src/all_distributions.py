@@ -29,7 +29,7 @@ def solve_all(solver, verbose=False):
             print_vector(x_opt_dep)
             print_vector(x_opt_hub)
 
-        dep_codes, dist_codes = grid.get_location_codes()
+        dist_codes, dep_codes = grid.get_location_codes()
         current_stock_dist, current_stock_dep, current_stock_hub = grid.get_current_stock()
         available = grid.get_available()
         output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist, current_stock_dist, available)
