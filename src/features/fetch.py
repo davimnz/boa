@@ -18,7 +18,7 @@ class DataSet:
            latitude_2=position_b['latitude'], longitude_2=position_b['longitude'])
 
     def select_grid(self, supplier='PL-1505', sku=85023):
-        return Grid(self.data, supplier, sku)
+        return Grid(self.data, supplier, sku, self)
     
     def list_grids(self):
         columns = ['Supply Site Code', 'SKU', 'Scenario']
@@ -37,13 +37,15 @@ class OptimizedDataSet:
 
 
 class Grid:
-    def __init__(self, data, supplier, sku):
+    def __init__(self, data, supplier, sku, dataset):
         supplier_data = data[data['Supply Site Code'] == supplier]
         self.grid = supplier_data[supplier_data['SKU'] == sku]
         depots_including_hub = self.grid[self.grid['Location Type'] == 'DEP']
         self.dep = depots_including_hub[depots_including_hub['Location Code'] != supplier]
         self.hub = self.grid[self.grid['Location Code'] == supplier]
         self.dist = self.grid[self.grid['Location Type'] == 'DIST']
+        self.supplier = supplier
+        self.dataset = dataset
 
     def get_current_stock(self):
         return self.dist[CURRENT_STOCK_LABEL].values, self.dep[CURRENT_STOCK_LABEL].values, self.hub[CURRENT_STOCK_LABEL].values
@@ -69,9 +71,29 @@ class Grid:
 
     def get_sizes(self):
         return len(self.dist), len(self.dep)
+
+    def get_size(self):
+        return len(self.dist) + len(self.dep) + len(self.hub)
     
+    def has_hub(self):
+        return len(self.hub) > 0
+
     def get_xopt(self):
         return self.dist[XOPT_LABEL].values, self.dep[XOPT_LABEL].values, self.hub[XOPT_LABEL].values
 
     def get_location_codes(self):
         return self.dist[LOCATION_CODE_LABEL].values, self.dep[LOCATION_CODE_LABEL].values
+
+    def get_all_location_codes(self):
+        return np.concatenate([self.dist[LOCATION_CODE_LABEL].values, 
+                                self.dep[LOCATION_CODE_LABEL].values, 
+                                [self.supplier]])
+    
+    def get_supplier_distances(self):
+        n = self.get_size()
+        location_codes = self.get_all_location_codes()
+        return np.matrix([self.dataset.get_distance(self.supplier, x) for x in location_codes]).reshape(1, n)
+    
+    def get_destination_distances(self):
+        location_codes = self.get_all_location_codes()
+        return np.matrix([[self.dataset.get_distance(x, y) for x in location_codes] for y in location_codes])

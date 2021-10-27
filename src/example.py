@@ -42,15 +42,15 @@ distributionOutput.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt
 distributionOutput.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
 distributionOutput.print('output.csv')
 
-n = len(x_opt_dist) + len(x_opt_dep) + 1
-location_codes = np.concatenate([dist_codes, dep_codes, [supplier]])
-print(dist_codes)
+n = grid.get_size()
+location_codes = grid.get_all_location_codes()
+supplier_distances = grid.get_supplier_distances()
+destination_distances = grid.get_destination_distances()
+
 print(location_codes)
-supplier_distances = np.matrix([dataset.get_distance(supplier, x) for x in location_codes]).reshape(1, n)
 print('Distancias do fornecedor')
 print_vector(supplier_distances)
 print('Distancias ao destino')
-destination_distances = np.matrix([[dataset.get_distance(x, y) for x in location_codes] for y in location_codes])
 print_vector(destination_distances)
 
 from_supply, exchanges = ExchangesSolver(grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances).solve()
