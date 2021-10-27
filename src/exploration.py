@@ -24,8 +24,8 @@ for _, g in grids.iterrows():
     supplier = g['Supply Site Code']
     sku = g['SKU']
     scenario = g['Scenario']
-    
-    grid = dataset.select_grid(supplier = supplier, sku = sku)
+
+    grid = dataset.select_grid(supplier=supplier, sku=sku)
     if len(grid.hub) == 0:
         print(supplier, sku, scenario)
         no_hub_count += 1
