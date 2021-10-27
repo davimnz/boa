@@ -1,10 +1,21 @@
 import numpy as np
 import pandas as pd
 from constants import *
+from distance import distance
+DATA_FILE = 'data/data.csv'
+DISTANCE_FILE = 'data/distance.csv'
 
 class DataSet:
     def __init__(self):
-        self.data = pd.read_csv('../../data/data.csv', delimiter=';', decimal=',')
+        self.data = pd.read_csv(DATA_FILE, delimiter=';', decimal=',')
+        self.distances = pd.read_csv(DISTANCE_FILE, delimiter=';', decimal=',')
+
+    def get_distance(self, a, b):
+        position_a = self.distances[self.distances['code'] == a]
+        position_b = self.distances[self.distances['code'] == b]
+
+        return distance(latitude_1=position_a['latitude'], longitude_1=position_a['longitude'],
+           latitude_2=position_b['latitude'], longitude_2=position_b['longitude'])
 
     def select_grid(self, supplier='PL-1505', sku=85023):
         return Grid(self.data, supplier, sku)

@@ -3,9 +3,11 @@ from utils import print_vector, cvxopt_solve_lp
 import time
 from scipy.optimize import linprog
 class Step2Solver:
-    def __init__(self, grid, x_opt_dist, x_opt_dep, x_opt_hub):
+    def __init__(self, grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances):
         self.grid = grid
         self.x_opt = np.hstack([x_opt_dist, x_opt_dep, x_opt_hub])
+        self.supplier_distances = supplier_distances
+        self.destination_distances = destination_distances
 
     def solve(self):    
         start = time.perf_counter()    
@@ -17,10 +19,7 @@ class Step2Solver:
         n = dist_size + dep_size + 1
         k = n*n
 
-        supplier_distances = np.random.rand(n)
-        destination_distances = np.random.rand(n, n)
-
-        c = np.hstack([supplier_distances, destination_distances.flatten()])
+        c = np.hstack([self.supplier_distances, self.destination_distances.flatten()])
         G = np.zeros(n+k)
         G[:n] = 1.0
 

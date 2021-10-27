@@ -37,12 +37,21 @@ x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(grid, scenario=
 
 output = Output()
 dep_codes, dist_codes = grid.get_location_codes()
-output.add_data(supplier, sku, 'DEPOT', dep_codes, x_opt_dep)
-output.add_data(supplier, sku, 'DEPOT', [supplier], [x_opt_hub])
-output.add_data(supplier, sku, 'DIST', dist_codes, x_opt_dist)
+output.add_data(supplier, sku, 'DEPOT', dep_codes, scenario, x_opt_dep)
+output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [x_opt_hub])
+output.add_data(supplier, sku, 'DIST', dist_codes, scenario, x_opt_dist)
 output.print('output.csv')
 
-from_supply, exchanges, A, b, solution = Step2Solver(grid, x_opt_dist, x_opt_dep, x_opt_hub).solve()
+n = len(x_opt_dist) + len(x_opt_dep) + 1
+codes = np.concatenate([dist_codes, dep_codes, [supplier]])
+supplier_distances = np.matrix([dataset.get_distance(supplier, x) for x in codes]).reshape(1, n)
+print('Distancias do fornecedor')
+print_vector(supplier_distances)
+print('Distancias ao destino')
+destination_distances = np.matrix([[dataset.get_distance(x, y) for x in codes] for y in codes])
+print_vector(destination_distances)
+
+from_supply, exchanges = Step2Solver(grid, x_opt_dist, x_opt_dep, x_opt_hub, supplier_distances, destination_distances).solve()
 
 xopt = np.hstack([x_opt_dist, x_opt_dep, [x_opt_hub]])
 n = len(from_supply)
