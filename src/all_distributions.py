@@ -42,8 +42,23 @@ def solve_all(solver, verbose=False):
     print('Std time: %.2f ms' % (np.std(times) * 1000))
     print('Min time: %.2f ms' % (np.min(times) * 1000))
     print('Max time: %.2f ms' % (np.max(times) * 1000))
+    return times
 
+import matplotlib.pyplot as plt
+all_times = {}
+ax = plt.axes()
 
 solvers = ['cvxopt', 'quadprog', 'osqp']
-for solver in solvers:
-    solve_all(solver)
+for i, solver in enumerate(solvers):
+    times = solve_all(solver)
+    ax.boxplot(1000*times, positions = [i+1], widths = 0.6)
+    
+    np.save('times_'+solver, times)
+
+plt.ylim(0, 2)
+ax.set_xticks([1, 2, 3])
+ax.set_xticklabels(solvers)
+plt.title('Comparação dos tempos dos solvers')
+plt.ylabel('Tempo (ms)')
+plt.savefig('figures/qp_solver_comparison.png', transparent=True)
+plt.show()

@@ -7,6 +7,14 @@ print('Valores distintos por coluna:')
 print(dataset.data.nunique())
 print('\n')
 
+print('Depósitos:')
+print(dataset.data[dataset.data['Location Type'] == 'DEP']['Location Code'].nunique())
+print('\n')
+
+print('CDDs:')
+print(dataset.data[dataset.data['Location Type'] == 'DIST']['Location Code'].nunique())
+print('\n')
+
 print('Grids por cenário:')
 df = grids.groupby(by=['Scenario']).count()
 print(df)
