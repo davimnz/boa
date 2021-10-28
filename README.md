@@ -1,7 +1,7 @@
 # BOA - Beverage Optimal Allocation
 
 ## Overview
-This project aims to provide the optimal distribution of products for a unbalanced supply chain data set of Ambev. We developed two algorithms using Operational Research techniques to find the optimal balanced stock configuration, and to evaluate the exchange map between sites to reach the configuration that was calculated previously. Furthermore, we compare two solutions with different premisses using several metrics.
+This project aims to provide the optimal distribution of products for a unbalanced supply chain data set of Ambev. We developed two algorithms using Operational Research techniques to find the optimal balanced stock configuration, and to evaluate the exchange map between sites to reach the configuration that was calculated previously. Furthermore, we compared two solutions with different premisses using several metrics.
 
 [You can find our presentation in Portuguese here.](placeholder)
 
@@ -30,7 +30,7 @@ Install the requirements in `requirements.txt` in a virtual environment, such as
 
 ## Run
 
-Run `make run` to execute all main source files if you have `make`. Otherwise, run the following files in order.
+Run `make run` to execute all main source files if you have `make`. Otherwise, run the following files in order. The Ambev's data set called `raw_data.csv` must be in `data` folder. This file must use semicolons as delimiter and colons as decimal.  
 
 ````
 python3 src/features/preprocessing.py      # removes useless data and generates geopositioning to sites
