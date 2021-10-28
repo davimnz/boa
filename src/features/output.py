@@ -6,11 +6,10 @@ class DistributionOutput:
     def __init__(self):
         self.df = None
 
-    def add_data(self, supplier, sku, location_type, location_codes, scenario, x_opt, current, available):
-        data = [ [supplier, sku, location_type, lc, scenario, cs, x, available[0]] for (lc, cs, x) in zip(location_codes, current, x_opt)]
-        new_df = pd.DataFrame(data, 
-            columns = [SUPPLY_SITE_CODE_LABEL, SKU_LABEL, LOCATION_TYPE_LABEL, 
-                        LOCATION_CODE_LABEL, SCENARIO_LABEL, CURRENT_STOCK_LABEL, XOPT_LABEL, AVAILABLE_LABEL])
+    def add_data(self, grid, x_opt_dist, x_opt_dep, x_opt_hub):
+        new_df = grid.dist.assign(x_opt=x_opt_dist)
+        new_df = new_df.append(grid.dep.assign(x_opt=x_opt_dep))
+        new_df = new_df.append(grid.hub.assign(x_opt=x_opt_hub))
         self.update(new_df)
     
     def update(self, new_df):

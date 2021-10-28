@@ -5,6 +5,18 @@ class DistributionSolver:
     def solve(self):
         pass
 
+    def get_xopt(self):
+        return self.x_opt
+    
+    def set_xopt(self, x_opt_dist, x_opt_dep, x_opt_hub):
+        self.x_opt = np.concatenate([x_opt_dist, x_opt_dep, [x_opt_hub]])
+        self.x_opt_dist = x_opt_dist
+        self.x_opt_dep = x_opt_dep
+        self.x_opt_hub = x_opt_hub
+
+    def get_xopt_per_type(self):
+        return self.x_opt_dist, self.x_opt_dep, self.x_opt_hub
+
 class DistributionSolverAbstractFactory:
     def create(self, scenario) -> DistributionSolver:
         pass
@@ -70,7 +82,7 @@ class Scenario0DistributionSolver (DistributionSolver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 class Scenario1DistributionSolver (DistributionSolver):
     def __init__(self, grid):
@@ -111,8 +123,7 @@ class Scenario1DistributionSolver (DistributionSolver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h, A=A, b=b)
-        print(x_opt)
-        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 
 class Scenario2DistributionSolver (DistributionSolver):
@@ -156,7 +167,7 @@ class Scenario2DistributionSolver (DistributionSolver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 
 class Scenario3DistributionSolver (DistributionSolver):
@@ -201,7 +212,7 @@ class Scenario3DistributionSolver (DistributionSolver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:], hub[0]
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:], hub[0])
 
 
 class Scenario4DistributionSolver (DistributionSolver):
@@ -260,4 +271,4 @@ class Scenario4DistributionSolver (DistributionSolver):
         h = np.hstack([h, np.zeros(k)])
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        return x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1]
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])

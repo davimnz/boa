@@ -22,22 +22,17 @@ def solve_all(solver, verbose=False):
         # TODO: no hub
         if len(grid.hub) == 0:
             continue
-        x_opt_dist, x_opt_dep, x_opt_hub = BalanceScenarioFactory.create(
-            grid, scenario=scenario).solve(qpsolver)
+        balanceSolver = BalanceScenarioFactory.create(grid, scenario=scenario)
+        balanceSolver.solve(qpsolver)
+        x_opt_dist, x_opt_dep, x_opt_hub = balanceSolver.get_xopt_per_type()
+
         if verbose:
             print_vector(x_opt_dist)
             print_vector(x_opt_dep)
             print_vector(x_opt_hub)
 
-        dist_codes, dep_codes = grid.get_location_codes()
-        current_stock_dist, current_stock_dep, current_stock_hub = grid.get_current_stock()
-        available = grid.get_available()
-        output.add_data(supplier, sku, 'DIST', dist_codes,
-                        scenario, x_opt_dist, current_stock_dist, available)
-        output.add_data(supplier, sku, 'DEP', dep_codes,
-                        scenario, x_opt_dep, current_stock_dep, available)
-        output.add_data(supplier, sku, 'DEP', [supplier], scenario, [
-                        x_opt_hub], current_stock_hub, available)
+        output.add_data(grid, x_opt_dist, x_opt_dep, x_opt_hub)
+
 
     output.print('output/distribution_output_' + solver + '.csv')
     print('Preferred solves:', qpsolver.preferred_solves_count)
