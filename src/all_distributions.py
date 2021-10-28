@@ -33,7 +33,6 @@ def solve_all(solver, verbose=False):
 
         output.add_data(grid, x_opt_dist, x_opt_dep, x_opt_hub)
 
-
     output.print('output/distribution_output_' + solver + '.csv')
     print('Preferred solves:', qpsolver.preferred_solves_count)
     print('Fallback solves:', qpsolver.fallback_solves_count)

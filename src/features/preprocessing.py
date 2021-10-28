@@ -8,6 +8,7 @@ def clear_inf(raw_data) -> None:
     """
     raw_data.replace([np.inf, -np.inf], np.nan, inplace=True)
     raw_data.dropna(inplace=True)
+    raw_data.to_csv('data/data.csv', sep=';', decimal=',', index=False)
 
 
 def generate_positions(raw_data,
@@ -32,10 +33,11 @@ def generate_positions(raw_data,
     distances['code'] = codes
     distances['latitude'] = latitude
     distances['longitude'] = longitude
-    distances.to_csv('data/distance.csv', sep=';', decimal=',', index=False)
+    distances.to_csv('data/geopositioning.csv',
+                     sep=';', decimal=',', index=False)
 
 
 if __name__ == "__main__":
-    raw_data = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
+    raw_data = pd.read_csv('data/raw_data.csv', delimiter=';', decimal=',')
     clear_inf(raw_data)
     generate_positions(raw_data)

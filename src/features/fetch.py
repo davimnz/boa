@@ -3,10 +3,11 @@ import pandas as pd
 from .constants import *
 from .distance import distance
 DATA_FILE = 'data/data.csv'
-DISTANCE_FILE = 'data/distance.csv'
+DISTANCE_FILE = 'data/geopositioning.csv'
+
 
 class DataSet:
-    def __init__(self, data_file = DATA_FILE):
+    def __init__(self, data_file=DATA_FILE):
         self.data = pd.read_csv(data_file, delimiter=';', decimal=',')
         self.distances = pd.read_csv(DISTANCE_FILE, delimiter=';', decimal=',')
 
@@ -15,14 +16,15 @@ class DataSet:
         position_b = self.distances[self.distances['code'] == b]
 
         return distance(latitude_1=position_a['latitude'], longitude_1=position_a['longitude'],
-           latitude_2=position_b['latitude'], longitude_2=position_b['longitude'])
+                        latitude_2=position_b['latitude'], longitude_2=position_b['longitude'])
 
     def select_grid(self, supplier='PL-1505', sku=85023):
         return Grid(self.data, supplier, sku, self)
-    
+
     def list_grids(self):
         columns = ['Supply Site Code', 'SKU', 'Scenario']
         return self.data.drop_duplicates(columns)[columns]
+
 
 class Grid:
     def __init__(self, data, supplier, sku, dataset):
@@ -49,7 +51,7 @@ class Grid:
         return self.dist[MIN_LABEL].values, self.dep[MIN_LABEL].values, self.hub[MIN_LABEL].values
 
     def get_reorder_point(self):
-        return  self.dist[REORDER_POINT_LABEL].values, self.dep[REORDER_POINT_LABEL].values, self.hub[REORDER_POINT_LABEL].values
+        return self.dist[REORDER_POINT_LABEL].values, self.dep[REORDER_POINT_LABEL].values, self.hub[REORDER_POINT_LABEL].values
 
     def get_available(self):
         return self.hub[AVAILABLE_LABEL].values
@@ -62,7 +64,7 @@ class Grid:
 
     def get_size(self):
         return len(self.dist) + len(self.dep) + len(self.hub)
-    
+
     def has_hub(self):
         return len(self.hub) > 0
 
@@ -73,15 +75,15 @@ class Grid:
         return self.dist[LOCATION_CODE_LABEL].values, self.dep[LOCATION_CODE_LABEL].values
 
     def get_all_location_codes(self):
-        return np.concatenate([self.dist[LOCATION_CODE_LABEL].values, 
-                                self.dep[LOCATION_CODE_LABEL].values, 
-                                [self.supplier]])
-    
+        return np.concatenate([self.dist[LOCATION_CODE_LABEL].values,
+                               self.dep[LOCATION_CODE_LABEL].values,
+                               [self.supplier]])
+
     def get_supplier_distances(self):
         n = self.get_size()
         location_codes = self.get_all_location_codes()
         return np.matrix([self.dataset.get_distance(self.supplier, x) for x in location_codes]).reshape(1, n)
-    
+
     def get_destination_distances(self):
         location_codes = self.get_all_location_codes()
         return np.matrix([[self.dataset.get_distance(x, y) for x in location_codes] for y in location_codes])
