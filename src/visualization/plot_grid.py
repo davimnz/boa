@@ -150,7 +150,7 @@ def plot_exchange_map(data, exchange, position,
         nodes_with_edges.append(destiny)
 
     layout = nx.planar_layout(grid)
-    layout_label = shift_position(layout, 0.0, 0.02)
+    layout_label = shift_position(layout, -0.03, 0.03)
 
     nodes_with_edges = list(set(nodes_with_edges))
     nodes_colors = []
@@ -162,7 +162,7 @@ def plot_exchange_map(data, exchange, position,
 
     nx.draw_networkx(grid, layout, node_color=nodes_colors,
                      nodelist=nodes_with_edges, with_labels=False,
-                     arrowsize=20)
+                     arrowsize=20, node_size=400)
     grid_edge_labels = nx.get_edge_attributes(grid, 'weight')
     nx.draw_networkx_edge_labels(grid, layout,
                                  edge_labels=grid_edge_labels)
