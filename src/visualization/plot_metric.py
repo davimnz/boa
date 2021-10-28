@@ -97,7 +97,7 @@ def plot_exchange_map_comparison(exchanges, distances) -> None:
     return exchanges_cost
 
 
-def plot_stock_balance(data, data_name) -> None:
+def plot_stock_balance(data, data_name, balance=False) -> None:
     """
     Plots two histograms of the percentage of balanced stocks in a grid.
     The balance points are max stock and reorder stock.
@@ -117,12 +117,20 @@ def plot_stock_balance(data, data_name) -> None:
             balanced_max = 0
             balanced_reorder = 0
             for row in grid.itertuples():
-                closing_stock = row[8]
-                max_stock = row[7]
-                reorder_stock = row[6]
-                if max_stock >= closing_stock:
+                if balance:
+                    stock_index = data.columns.to_list().index('x_opt')
+                else:
+                    stock_index = data.columns.to_list().index('Closing Stock')
+
+                max_stock_index = data.columns.to_list().index('MaxDOC (Hl)')
+                reorder_stock_index = data.columns.to_list().index('Reorder Point (Hl)')
+
+                current_stock = row[stock_index + 1]
+                max_stock = row[max_stock_index + 1]
+                reorder_stock = row[reorder_stock_index + 1]
+                if max_stock >= current_stock:
                     balanced_max = balanced_max + 1
-                if closing_stock >= reorder_stock:
+                if current_stock >= reorder_stock:
                     balanced_reorder = balanced_reorder + 1
             max_percentage = (balanced_max / len(grid)) * 100
             reorder_percentage = (balanced_reorder / len(grid)) * 100
@@ -144,13 +152,17 @@ def plot_stock_balance(data, data_name) -> None:
     plt.xlim(0, 100)
     plt.tight_layout()
     plt.savefig('figures/' + data_name + '_reorder_stock.png')
+    plt.figure()
 
 
 if __name__ == '__main__':
     unbalanced = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
+    balanced = pd.read_csv('output/distribution_output_cvxopt.csv',
+                           delimiter=';', decimal=',')
     distances = pd.read_csv('data/distance.csv', delimiter=';', decimal=',')
     exchanges = pd.read_csv('output/exchanges_output.csv',
                             delimiter=';', decimal=',')
 
     plot_stock_balance(unbalanced, 'unbalanced')
+    plot_stock_balance(balanced, 'balanced', balance=True)
     plot_exchange_map_comparison(exchanges, distances)
