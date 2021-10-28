@@ -85,7 +85,7 @@ def plot_stock_grid(data, position, supply_site_code,
 
     dep_legend = mpatches.Patch(color=color_dict["DEP"], label='Depósito')
     dist_legend = mpatches.Patch(color=color_dict["DIST"], label='CDD')
-    hub_legend = mpatches.Patch(color=color_dict["HUB"], label="Cervejaria")
+    hub_legend = mpatches.Patch(color=color_dict["HUB"], label="Hub")
 
     plt.legend(handles=[dep_legend, dist_legend, hub_legend], fontsize=20)
     plt.axis('off')
@@ -170,7 +170,7 @@ def plot_exchange_map(data, exchange, position,
 
     dep_legend = mpatches.Patch(color=color_dict["DEP"], label='Depósito')
     dist_legend = mpatches.Patch(color=color_dict["DIST"], label='CDD')
-    hub_legend = mpatches.Patch(color=color_dict["HUB"], label="Cervejaria")
+    hub_legend = mpatches.Patch(color=color_dict["HUB"], label="Hub")
 
     plt.legend(handles=[dep_legend, dist_legend, hub_legend], fontsize=20)
     plt.axis('off')
