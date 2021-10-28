@@ -34,9 +34,9 @@ def solve_all(solver, verbose=False):
         available = grid.get_available()
         output.add_data(supplier, sku, 'DIST', dist_codes,
                         scenario, x_opt_dist, current_stock_dist, available)
-        output.add_data(supplier, sku, 'DEPOT', dep_codes,
+        output.add_data(supplier, sku, 'DEP', dep_codes,
                         scenario, x_opt_dep, current_stock_dep, available)
-        output.add_data(supplier, sku, 'DEPOT', [supplier], scenario, [
+        output.add_data(supplier, sku, 'DEP', [supplier], scenario, [
                         x_opt_hub], current_stock_hub, available)
 
     output.print('output/distribution_output_' + solver + '.csv')
