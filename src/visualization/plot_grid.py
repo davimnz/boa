@@ -181,7 +181,8 @@ if __name__ == "__main__":
     unbalanced = pd.read_csv('data/data.csv', delimiter=';', decimal=',')
     balanced = pd.read_csv('output/distribution_output_cvxopt.csv',
                            delimiter=';', decimal=',')
-    position = pd.read_csv('data/distance.csv', delimiter=';', decimal=',')
+    position = pd.read_csv('data/geopositioning.csv',
+                           delimiter=';', decimal=',')
     exchange = pd.read_csv('output/exchanges_output.csv',
                            delimiter=';', decimal=',')
 

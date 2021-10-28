@@ -1,7 +1,7 @@
 # BOA - Beverage Optimal Allocation
 
 ## Overview
-todo
+This project aims to provide the optimal distribution of products for a unbalanced supply chain data set of Ambev. We developed two algorithms using Operational Research techniques to find the optimal balanced stock configuration, and to evaluate the exchange map between sites to reach the configuration that was calculated previously. Furthermore, we compare two solutions with different premisses using several metrics.
 
 [You can find our presentation in Portuguese here.](placeholder)
 
@@ -19,7 +19,7 @@ We chose the reference stock based on the scenario of a grid. The scenario gives
 
 Once we had the optimal stock of each site in a grid, we calculated the best way to distribute products among supply sites, distributors, and depots using Linear Programming. The LP problem uses the distance between two sites as the product unit cost. Moreover, the constraints states that the amount of product that leaves or goes to a grid must be equal to the difference between the balanced stock and the unbalanced stock.
 
-In the end, we generated metrics to compare the two versions of the problem, such as the percentage of sites that have a stock greater than maximum stock in a grid, and the ratio between closing stock and reorder stock.
+In the end, we generated metrics to compare the two versions of the problem, such as the percentage of sites that have a stock greater than maximum stock in a grid, and the ratio between closing stock and reorder stock in all sites.
 
 ### Solution Architecture
 
@@ -30,7 +30,7 @@ Install the requirements in `requirements.txt` in a virtual environment, such as
 
 ## Run
 
-Run `make all` to execute all main source files if you have `make`. Otherwise, run the following files in order.
+Run `make run` to execute all main source files if you have `make`. Otherwise, run the following files in order.
 
 ````
 python3 src/features/preprocessing.py      # removes useless data and generates geopositioning to sites
