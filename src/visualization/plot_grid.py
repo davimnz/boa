@@ -24,7 +24,8 @@ def convert_to_2d(latitude, longitude, center_latitude=50.0):
     return x, y
 
 
-def plot_stock_grid(data, position, supply_site_code, sku_code) -> None:
+def plot_stock_grid(data, position, supply_site_code,
+                    sku_code, balance=False) -> None:
     """
     Plots a map containing the amount of stock in each location of a given
     grid: Hub, Depot or Distributor.
@@ -41,7 +42,10 @@ def plot_stock_grid(data, position, supply_site_code, sku_code) -> None:
                   "DEPOT": '#3f60e1'}
 
     location_index = grid_table.columns.to_list().index('Location Code')
-    stock_index = grid_table.columns.to_list().index('Closing Stock')
+    if balance:
+        stock_index = grid_table.columns.to_list().index('x_opt')
+    else:
+        stock_index = grid_table.columns.to_list().index('Closing Stock')
     type_index = grid_table.columns.to_list().index('Location Type')
 
     for row in grid_table.itertuples():
@@ -187,6 +191,7 @@ if __name__ == "__main__":
 
     # plots unbalanced grid, balanced grid, and exchange map
     plot_stock_grid(unbalanced, position, supply_site_code, sku_code)
-    plot_stock_grid(balanced, position, supply_site_code, sku_code)
+    plot_stock_grid(balanced, position, supply_site_code,
+                    sku_code, balance=True)
     plot_exchange_map(unbalanced, exchange, position,
                       supply_site_code, sku_code)
