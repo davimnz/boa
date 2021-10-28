@@ -51,7 +51,7 @@ solvers = ['cvxopt', 'quadprog', 'osqp']
 for i, solver in enumerate(solvers):
     times = solve_all(solver)
     ax.boxplot(1000*times, positions = [i+1], widths = 0.6)
-    
+
     np.save('times_'+solver, times)
 
 plt.ylim(0, 2)
