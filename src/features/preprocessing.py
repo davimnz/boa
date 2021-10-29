@@ -1,15 +1,18 @@
 import pandas as pd
 import numpy as np
+from constants import *
 
-
-def clear_inf(raw_data) -> None:
+def clear_scenario_0(data) -> None:
     """
-    Deletes rows with inf values
+    Deletes grids with scenario 0
     """
-    raw_data.replace([np.inf, -np.inf], np.nan, inplace=True)
-    raw_data.dropna(inplace=True)
-    raw_data.to_csv('data/data.csv', sep=';', decimal=',', index=False)
+    return data[ data[SCENARIO_LABEL] != 0 ]    
 
+def clear_anomaly(data) -> None:
+    """
+    Deletes grid with min > max
+    """
+    return data.drop(data[(data[SUPPLY_SITE_CODE_LABEL] == 'PL-1505') & (data[SKU_LABEL] == 92085)].index)
 
 def generate_positions(raw_data,
                        max_latitude=51.3494, min_latitude=49.5677,
@@ -39,5 +42,7 @@ def generate_positions(raw_data,
 
 if __name__ == "__main__":
     raw_data = pd.read_csv('data/raw_data.csv', delimiter=';', decimal=',')
-    clear_inf(raw_data)
+    data = clear_scenario_0(raw_data)
+    data = clear_anomaly(data)
+    data.to_csv('data/data.csv', sep=';', decimal=',', index=False)
     generate_positions(raw_data)

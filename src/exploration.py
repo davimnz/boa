@@ -1,5 +1,5 @@
 from features.fetch import DataSet
-dataset = DataSet()
+dataset = DataSet(data_file='data/raw_data.csv')
 grids = dataset.list_grids()
 
 print('Número de grids: ', len(grids), '\n')

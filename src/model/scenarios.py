@@ -29,6 +29,18 @@ class DistributionSolver:
         h = np.concatenate([h, -lower_bound])
         return G, h
     
+    def relative_minimize_in_relation_to(self, y):
+        k = y.size
+        M = np.identity(k)
+        for i in range(k):
+            if y[i] > 1e-3:
+                M[i, i] = 1 / y[i]
+            else:
+                M[i, i] = 1000
+        n = np.ones(k)
+        P, q = get_pq(M, n)
+        return P, q
+    
     def minimize_in_relation_to(self, y):
         n = y.reshape(-1, 1)
         k = n.shape[0]
@@ -51,6 +63,17 @@ class DistributionSolver:
         G = np.vstack([G, aux])
         h = np.concatenate([h, - dist_minimum])
         return G, h 
+    
+    def add_dist_has_at_most_constraint(self, G, h, dist_max):
+        k = G.shape[1]
+        n_dist = dist_max.size
+        aux = np.zeros((n_dist, k), dtype=np.float64)
+        for i in range(n_dist):
+            aux[i, i] = 1
+        G = np.vstack([G, aux])
+        h = np.concatenate([h, dist_max])
+        return G, h 
+
 
 
 
@@ -112,14 +135,9 @@ class Scenario1DistributionSolver (DistributionSolver):
         orders = self.grid.get_orders()
 
         k = 1 + dist_size + dep_size
-        # minimizar (Mx - n), onde x = [dists; deps; hub]
-        M = np.identity(k)
-        M[k-1, k-1] = 0
-
-        n = np.bmat([max_dist, max_dep, [0]]).reshape(k, 1)
-        # Transforma para a forma padrão
-        P, q = get_pq(M, n)
-    
+        max_points = np.concatenate([max_dist, max_dep, [0]])
+        P, q = self.relative_minimize_in_relation_to(max_points)
+        P[-1, -1] = 0    
         total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
         # Ax = b
         # sum(xi) = a + TCS
@@ -157,12 +175,8 @@ class Scenario2DistributionSolver (DistributionSolver):
         orders = self.grid.get_orders()
 
         k = 1 + dist_size + dep_size
-        # minimizar (Mx - n), onde x = [dists; deps; hub]
-        M = np.identity(k)
-
-        n = np.bmat([reorder_point_dist, reorder_point_dep, reorder_point_hub]).reshape(k, 1)
-        # Transforma para a forma padrão
-        P, q = get_pq(M, n)
+        reorder_points = np.concatenate([reorder_point_dist, reorder_point_dep, reorder_point_hub])
+        P, q = self.relative_minimize_in_relation_to(reorder_points)
     
         total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
         # Gx <= h
@@ -200,39 +214,31 @@ class Scenario3DistributionSolver (DistributionSolver):
         reorder_point_dist, reorder_point_dep, reorder_point_hub = self.grid.get_reorder_point()
         available_to_deploy = self.grid.get_available()
         orders = self.grid.get_orders()
+        total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
 
         k = dist_size + dep_size
-        _, _, hub = self.grid.get_min_stock()
+        _, _, hub_min = self.grid.get_min_stock()
+        hub = hub_min[0]
 
         # minimizar (Mx - n), onde x = [dists; deps]
-        M = np.identity(k)
-        n = np.bmat([reorder_point_dist, reorder_point_dep]).reshape(k, 1)
-        # Transforma para a forma padrão
-        P, q = get_pq(M, n)
-    
-        total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
+        reorder_points_excluding_hub = np.concatenate([reorder_point_dist, reorder_point_dep])
+        P, q = self.relative_minimize_in_relation_to(reorder_points_excluding_hub)
         # Gx <= h
-        # uma inequação para cada dist + 2 gerais
-        G = np.zeros((2+dist_size, k), dtype=np.float64)
-        h = np.zeros(2+dist_size)
-
         # primeira inequação: limite de produto disponivel
-        G[0, :] = np.ones(k)
-        h[0] = available_to_deploy + total_current_stock - hub
+        G = np.ones((1, k))
+        h = np.array(available_to_deploy + total_current_stock - hub)
         # segunda inequação: nada sai do sistema 
-        G[1, :] = - np.ones(k)
-        h[1] = - total_current_stock + hub
+        G, h = self.add_total_stock_does_not_decrease_constraint(G, h, total_current_stock-hub)
         # demais inequaçãoes: dist tem no máximo CS + order
-        for i in range(dist_size):
-            G[2+i, i] = -1.0
-        h[2:] = (orders + current_stock_dist)
+        dist_maximum = orders + current_stock_dist
+        G, h = self.add_dist_has_at_most_constraint(G, h, dist_maximum)
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
-        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:], hub[0])
+        self.set_xopt(x_opt[:dist_size], x_opt[dist_size:], hub)
 
 
 class Scenario4DistributionSolver (DistributionSolver):
@@ -249,27 +255,8 @@ class Scenario4DistributionSolver (DistributionSolver):
 
         k = dist_size + dep_size + 1
         # minimizar (Mx - n), onde x = [dists; deps]
-        M = np.identity(k)
-        for i in range(dist_size):
-            if reorder_point_dist[i]>1e-3:
-                M[i, i] = 1/reorder_point_dist[i]
-            else: 
-                M[i, i] = 1000
-        for i in range(dep_size):
-            if reorder_point_dep[i]>1e-3:
-                M[dist_size + i, dist_size + i] = 1/reorder_point_dep[i]
-            else: 
-                M[dist_size + i, dist_size + i] = 1000
-        if reorder_point_hub>1e-3:
-            M[-1, -1] = 1/reorder_point_hub
-        else: 
-            M[-1, -1] = 1000
-
-        # print(M)
-        n = np.ones(k)
-        # Transforma para a forma padrão
-        P, q = get_pq(M, n)
-    
+        reorder_points = np.concatenate([reorder_point_dist, reorder_point_dep, reorder_point_hub])
+        P, q = self.relative_minimize_in_relation_to(reorder_points)
         total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
         # Gx <= h
         # uma inequação para cada dist + 2 gerais
@@ -277,15 +264,13 @@ class Scenario4DistributionSolver (DistributionSolver):
         h = np.zeros(2+dist_size)
 
         # primeira inequação: limite de produto disponivel
-        G[0, :] = np.ones(k)
-        h[0] = available_to_deploy + total_current_stock 
+        G = np.ones((1, k))
+        h = np.array(available_to_deploy + total_current_stock)
         # segunda inequação: nada sai do sistema 
-        G[1, :] = - np.ones(k)
-        h[1] = - total_current_stock 
+        G, h = self.add_total_stock_does_not_decrease_constraint(G, h, total_current_stock)
         # demais inequaçãoes: dist tem no máximo CS + order
-        for i in range(dist_size):
-            G[2+i, i] = -1.0
-        h[2:] = (orders + current_stock_dist)
+        dist_maximum = orders + current_stock_dist
+        G, h = self.add_dist_has_at_most_constraint(G, h, dist_maximum)
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:

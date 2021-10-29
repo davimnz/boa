@@ -11,9 +11,9 @@ dataset = DataSet()
 # sku = 92102
 # scenario = 0
 
-supplier = 'PL-1721'
-sku = 85735
-scenario = 1
+supplier = 'PL-1505'
+sku = 85023
+scenario = 3
 
 # supplier = 'PL-1721'
 # sku = 85728

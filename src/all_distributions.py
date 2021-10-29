@@ -17,8 +17,6 @@ def solve_all(solver, verbose=False, with_redistribution=True, output_file=None)
         supplier = g['Supply Site Code']
         sku = g['SKU']
         scenario = g['Scenario']
-        if scenario != 0:
-            continue
 
         grid = dataset.select_grid(supplier=supplier, sku=sku)
         # TODO: no hub
