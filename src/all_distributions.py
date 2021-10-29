@@ -7,7 +7,7 @@ from features.output import DistributionOutput
 dataset = DataSet()
 
 
-def solve_all(solver, verbose=False):
+def solve_all(solver, verbose=False, with_redistribution=True, output_file=None):
     output = DistributionOutput()
     grids = dataset.list_grids()
     qpsolver = QPSolver(solver)
@@ -35,7 +35,9 @@ def solve_all(solver, verbose=False):
 
         output.add_data(grid, x_opt_dist, x_opt_dep, x_opt_hub)
 
-    output.print('output/distribution_output_' + solver + '.csv')
+    if output_file is None:
+        output_file = 'output/distribution_output_' + solver + '.csv'
+    output.print(output_file)
     print('Preferred solves:', qpsolver.preferred_solves_count)
     print('Fallback solves:', qpsolver.fallback_solves_count)
     times = qpsolver.get_times()
@@ -55,6 +57,8 @@ for i, solver in enumerate(solvers):
     ax.boxplot(1000*times, positions = [i+1], widths = 0.6)
 
     np.save('times_'+solver, times)
+
+solve_all('quadprog', with_redistribution=False, output_file='output/no_redistribution.csv')
 
 plt.ylim(0, 2)
 ax.set_xticks([1, 2, 3])
