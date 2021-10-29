@@ -2,6 +2,10 @@ import numpy as np
 from .utils import get_pq, cvxopt_solve_qp
 
 class DistributionSolver:
+    def __init__(self, grid, allow_rebalance):
+        self.grid = grid
+        self.allow_rebalance = allow_rebalance
+
     def solve(self):
         pass
 
@@ -16,33 +20,52 @@ class DistributionSolver:
 
     def get_xopt_per_type(self):
         return self.x_opt_dist, self.x_opt_dep, self.x_opt_hub
+    
+    def add_non_negativity_constraint(self, G, h, k):
+        return self.add_all_x_larger_than_constraint(G, h, k, np.zeros(k))
+    
+    def add_all_x_larger_than_constraint(self, G, h, k, lower_bound):
+        G = np.vstack([G, -np.identity(k)])
+        h = np.concatenate([h, -lower_bound])
+        return G, h
+    
+    def minimize_in_relation_to(self, y):
+        n = y.reshape(-1, 1)
+        k = n.shape[0]
+        M = np.identity(k)
+        P, q = get_pq(M, n)
+        return P, q
+    
+    def add_total_stock_does_not_decrease_constraint(self, G, h, total_current_stock):
+        k = G.shape[1]
+        G = np.vstack([G, - np.ones(k)])
+        h = np.concatenate([h, np.array([- total_current_stock]) ])
+        return G, h 
+    
+    def add_dist_has_at_least_constraint(self, G, h, dist_minimum):
+        k = G.shape[1]
+        n_dist = dist_minimum.size
+        aux = np.zeros((n_dist, k), dtype=np.float64)
+        for i in range(n_dist):
+            aux[i, i] = -1
+        G = np.vstack([G, aux])
+        h = np.concatenate([h, - dist_minimum])
+        return G, h 
 
-class DistributionSolverAbstractFactory:
-    def create(self, scenario) -> DistributionSolver:
-        pass
 
-class SimpleDistributionSolverFactory (DistributionSolverAbstractFactory):
-    def create(self, scenario) -> DistributionSolver:
-        pass
 
-class BalanceScenarioFactory (DistributionSolverAbstractFactory):
-    def create(grid, scenario) -> DistributionSolver:
-        if scenario == 0:
-            return Scenario0DistributionSolver(grid)
-        elif scenario == 1:
-            return Scenario1DistributionSolver(grid)
-        elif scenario == 2:
-            return Scenario2DistributionSolver(grid)
-        elif scenario == 3:
-            return Scenario3DistributionSolver(grid)
-        elif scenario == 4:
-            return Scenario4DistributionSolver(grid)
-        else:
+class BalanceScenarioFactory:
+    def create(grid, scenario, allow_redistribution=True) -> DistributionSolver:
+        solvers = [Scenario0DistributionSolver, Scenario1DistributionSolver, Scenario2DistributionSolver,
+                    Scenario3DistributionSolver, Scenario4DistributionSolver]
+        try:
+            return solvers[scenario](grid, allow_redistribution)
+        except:
             raise Exception('Scenario does not exist')
 
 class Scenario0DistributionSolver (DistributionSolver):
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, grid, allow_rebalance):
+        super().__init__(grid, allow_rebalance)
 
     def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
@@ -52,41 +75,33 @@ class Scenario0DistributionSolver (DistributionSolver):
         available_to_deploy = self.grid.get_available()
         orders = self.grid.get_orders()
 
+        total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
         k = 1 + dist_size + dep_size
         # minimizar (Mx - n), onde x = [dists; deps; hub]
-        M = np.identity(k)
+        reorder_points = np.concatenate([reorder_point_dist, reorder_point_dep, reorder_point_hub])
+        P, q = self.minimize_in_relation_to(reorder_points)
 
-        n = np.bmat([reorder_point_dist, reorder_point_dep, reorder_point_hub]).reshape(k, 1)
-        # Transforma para a forma padrão
-        P, q = get_pq(M, n)
-    
-        total_current_stock = current_stock_dist.sum() + current_stock_dep.sum() + current_stock_hub.sum()
-        # Gx <= h
-        # uma inequação para cada dist + 2 gerais
-        G = np.zeros((2+dist_size, k), dtype=np.float64)
-        h = np.zeros(2+dist_size)
-
+        # Desigualdades Gx <= h
         # primeira inequação: limite de produto disponivel
-        G[0, :] = np.ones(k)
-        h[0] = available_to_deploy + total_current_stock
+        G = np.ones((1, k))
+        h = np.array(available_to_deploy + total_current_stock)
         # segunda inequação: nada sai do sistema 
-        G[1, :] = - np.ones(k)
-        h[1] = - total_current_stock
+        G, h = self.add_total_stock_does_not_decrease_constraint(G, h, total_current_stock)
         # demais inequaçãoes: dist tem no mínimo CS + order
-        for i in range(dist_size):
-            G[2+i, i] = -1.0
-        h[2:] = - (orders + current_stock_dist)
-
+        dist_minimum = orders + current_stock_dist
+        G, h = self.add_dist_has_at_least_constraint(G, h, dist_minimum)
         # nao negatividade
-        G = np.vstack([G, -np.identity(k)])
-        h = np.hstack([h, np.zeros(k)])
-        
+        G, h = self.add_non_negativity_constraint(G, h, k)
+        # se não tiver rebalance ativado: estoque nunca pode diminuir
+        if not self.allow_rebalance:
+            G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
+
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 class Scenario1DistributionSolver (DistributionSolver):
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, grid, allow_rebalance):
+        super().__init__(grid, allow_rebalance)
 
     def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
@@ -118,17 +133,20 @@ class Scenario1DistributionSolver (DistributionSolver):
             G[i, i] = -1.0
         h = np.zeros(k)
         h[:len(orders)] = - (orders + current_stock_dist)
+
+        current_stock = np.concatenate([current_stock_dist, current_stock_dep, current_stock_hub])
         # nao negatividade
-        G = np.vstack([G, -np.identity(k)])
-        h = np.hstack([h, np.zeros(k)])
+        G, h = self.add_non_negativity_constraint(G, h, k)
+        if not self.allow_rebalance:
+            G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h, A=A, b=b)
         self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 
 class Scenario2DistributionSolver (DistributionSolver):
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, grid, allow_rebalance):
+        super().__init__(grid, allow_rebalance)
 
     def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
@@ -163,16 +181,17 @@ class Scenario2DistributionSolver (DistributionSolver):
             G[2+i, i] = -1.0
         h[2:] = - (orders + current_stock_dist)
         # nao negatividade
-        G = np.vstack([G, -np.identity(k)])
-        h = np.hstack([h, np.zeros(k)])
+        G, h = self.add_non_negativity_constraint(G, h, k)
+        if not self.allow_rebalance:
+            G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
 
 
 class Scenario3DistributionSolver (DistributionSolver):
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, grid, allow_rebalance):
+        super().__init__(grid, allow_rebalance)
 
     def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
@@ -208,16 +227,17 @@ class Scenario3DistributionSolver (DistributionSolver):
             G[2+i, i] = -1.0
         h[2:] = (orders + current_stock_dist)
         # nao negatividade
-        G = np.vstack([G, -np.identity(k)])
-        h = np.hstack([h, np.zeros(k)])
+        G, h = self.add_non_negativity_constraint(G, h, k)
+        if not self.allow_rebalance:
+            G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         self.set_xopt(x_opt[:dist_size], x_opt[dist_size:], hub[0])
 
 
 class Scenario4DistributionSolver (DistributionSolver):
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, grid, allow_rebalance):
+        super().__init__(grid, allow_rebalance)
 
     def solve(self, qpsolver):
         dist_size, dep_size = self.grid.get_sizes()
@@ -267,8 +287,9 @@ class Scenario4DistributionSolver (DistributionSolver):
             G[2+i, i] = -1.0
         h[2:] = (orders + current_stock_dist)
         # nao negatividade
-        G = np.vstack([G, -np.identity(k)])
-        h = np.hstack([h, np.zeros(k)])
+        G, h = self.add_non_negativity_constraint(G, h, k)
+        if not self.allow_rebalance:
+            G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
         self.set_xopt(x_opt[:dist_size], x_opt[dist_size:-1], x_opt[-1])
