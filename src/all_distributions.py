@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from features.fetch import DataSet
 from model.scenarios import BalanceScenarioFactory
 from model.utils import print_vector, QPSolver
@@ -45,18 +46,19 @@ def solve_all(solver, verbose=False, with_redistribution=True, output_file=None)
     print('Max time: %.2f ms' % (np.max(times) * 1000))
     return times
 
-import matplotlib.pyplot as plt
+
 all_times = {}
 ax = plt.axes()
 
 solvers = ['cvxopt', 'quadprog', 'osqp']
 for i, solver in enumerate(solvers):
     times = solve_all(solver)
-    ax.boxplot(1000*times, positions = [i+1], widths = 0.6)
+    ax.boxplot(1000*times, positions=[i+1], widths=0.6)
 
     np.save('times_'+solver, times)
 
-solve_all('quadprog', with_redistribution=False, output_file='output/no_redistribution.csv')
+solve_all('quadprog', with_redistribution=False,
+          output_file='output/no_redistribution.csv')
 
 plt.ylim(0, 2)
 ax.set_xticks([1, 2, 3])
