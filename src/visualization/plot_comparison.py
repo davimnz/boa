@@ -19,11 +19,17 @@ def plot(x):
 
 data = pd.read_csv( 'output/distribution_output_quadprog.csv', delimiter=';', decimal=',')
 
+data_no_redistribution = pd.read_csv( 'output/no_redistribution.csv', delimiter=';', decimal=',')
+
 data = data[abs(data['Reorder Point (Hl)']) > 1]
+data_no_redistribution = data_no_redistribution[abs(data_no_redistribution['Reorder Point (Hl)']) > 1]
+
 # data = data[data['Scenario'] != 1]
 
 data['cs_over_ro_before'] = data['Closing Stock']/data['Reorder Point (Hl)']
 data['cs_over_ro_after'] = data['x_opt']/data['Reorder Point (Hl)']
+
+data_no_redistribution['cs_over_ro_after'] = data_no_redistribution['x_opt']/data_no_redistribution['Reorder Point (Hl)']
 
 data['cs_over_max_before'] = data['Closing Stock']/data['MaxDOC (Hl)']
 data['cs_over_max_after'] = data['x_opt']/data['MaxDOC (Hl)']
@@ -31,16 +37,14 @@ data['cs_over_max_after'] = data['x_opt']/data['MaxDOC (Hl)']
 print('CS/RP')
 print('Before: Mean', data['cs_over_ro_before'].mean(), 'Std', data['cs_over_ro_before'].std())
 print('After: Mean', data['cs_over_ro_after'].mean(), 'Std', data['cs_over_ro_after'].std())
-
-print('CS/Max')
-print('Before: Mean', data['cs_over_max_before'].mean(), 'Std', data['cs_over_max_before'].std())
-print('After: Mean', data['cs_over_max_after'].mean(), 'Std', data['cs_over_max_after'].std())
+print('No redistribution: Mean', data_no_redistribution['cs_over_ro_after'].mean(), 'Std', data_no_redistribution['cs_over_ro_after'].std())
 
 plot(data['cs_over_ro_before'].values)
-# plt.title("Histo")
 plt.savefig('figures/distribution_before.png', transparent=True)
-plt.figure()
+
 plot(data['cs_over_ro_after'].values) 
 plt.savefig('figures/distribution_after.png', transparent=True)
 
-# plt.show()
+plot(data_no_redistribution['cs_over_ro_after'].values) 
+plt.savefig('figures/distribution_without_redistribution.png', transparent=True)
+plt.show()
