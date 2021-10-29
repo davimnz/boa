@@ -3,7 +3,7 @@
 ## Overview
 This project aims to provide the optimal distribution of products for a unbalanced supply chain data set of Ambev. We developed two algorithms using Operational Research techniques to find the optimal balanced stock configuration, and to evaluate the exchange map between sites to reach the configuration that was calculated previously. Furthermore, we compared two solutions with different premisses using several metrics.
 
-[You can find our presentation in Portuguese here.](placeholder)
+[You can find our presentation in Portuguese here.](https://drive.google.com/file/d/1wqLO27wx3kebZhj6CsAFjz4CKdggN9vb/view?usp=sharing)
 
 ### Problem
 To avoid misconceptions, we explain some concepts before introducing the problem. There are three types of a site: supply site, distributor, and depot. A supply site produces beverages for distributors and depots. A distributor can send a product to a depot, and vice versa. However, a supply site cannot receive a product from distributor or depot. On these premisses, we define the first version of the problem. Moreover, the second version assumes that products of distributors cannot be sent to depots, and vice versa.
@@ -38,6 +38,7 @@ python3 src/all_distributions.py           # generates first step output with de
 python3 src/all_exchanges.py               # generates second step output with all exchanges needed
 python3 src/visualization/plot_metric.py   # plots stock balance metrics
 python3 src/visualization/plot_grid.py     # plots grid stocks after/before rebalancing and exchange map for a given grid
+python3 src/visualization/plot_comparison.py # plots histograms of current stock / reorder point with and without redistribution
 ````
 
 ## Team
