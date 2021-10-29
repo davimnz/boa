@@ -22,25 +22,24 @@ class DistributionSolver:
         return self.x_opt_dist, self.x_opt_dep, self.x_opt_hub
     
     def add_non_negativity_constraint(self, G, h, k):
-        return self.add_all_x_larger_than_constraint(G, h, k, np.zeros((k, 1)))
+        return self.add_all_x_larger_than_constraint(G, h, k, np.zeros(k))
     
     def add_all_x_larger_than_constraint(self, G, h, k, lower_bound):
         G = np.vstack([G, -np.identity(k)])
-        print(h.shape)
-        print(lower_bound.shape)
-        h = np.vstack([h, -lower_bound])
+        h = np.concatenate([h, -lower_bound])
         return G, h
     
     def minimize_in_relation_to(self, y):
         n = y.reshape(-1, 1)
         k = n.shape[0]
         M = np.identity(k)
-        return get_pq(M, n)
+        P, q = get_pq(M, n)
+        return P, q
     
     def add_total_stock_does_not_decrease_constraint(self, G, h, total_current_stock):
         k = G.shape[1]
         G = np.vstack([G, - np.ones(k)])
-        h = np.vstack([h, np.array([- total_current_stock]) ])
+        h = np.concatenate([h, np.array([- total_current_stock]) ])
         return G, h 
     
     def add_dist_has_at_least_constraint(self, G, h, dist_minimum):
@@ -50,7 +49,7 @@ class DistributionSolver:
         for i in range(n_dist):
             aux[i, i] = -1
         G = np.vstack([G, aux])
-        h = np.vstack([h, - dist_minimum.reshape(-1, 1)])
+        h = np.concatenate([h, - dist_minimum])
         return G, h 
 
 
@@ -85,7 +84,7 @@ class Scenario0DistributionSolver (DistributionSolver):
         # Desigualdades Gx <= h
         # primeira inequação: limite de produto disponivel
         G = np.ones((1, k))
-        h = np.array(available_to_deploy + total_current_stock).reshape(1,1)
+        h = np.array(available_to_deploy + total_current_stock)
         # segunda inequação: nada sai do sistema 
         G, h = self.add_total_stock_does_not_decrease_constraint(G, h, total_current_stock)
         # demais inequaçãoes: dist tem no mínimo CS + order

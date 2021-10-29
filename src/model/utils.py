@@ -41,6 +41,11 @@ class QPSolver:
 
     def solve_qp(self, P, q, G=None, h=None, A=None, b=None):
         P0 = P
+        if h is not None:
+            h = h.reshape(-1, )
+        if q is not None:
+            q = q.reshape(-1, )
+
         # tenta com quadprog
         x, elapsed_time = self.solve_qp_with(P, q, G, h, A, b, solver=self.preferred_solver)
         if x is not None:
