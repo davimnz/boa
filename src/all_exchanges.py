@@ -34,5 +34,5 @@ def solve_all(dataset, verbose=False, with_redistribution=True, output_file = No
 dataset_with_redistribution = DataSet('output/distribution_output_quadprog.csv')
 dataset_without_redistribution = DataSet('output/no_redistribution.csv')
 
-solve_all(dataset_without_redistribution, with_redistribution=False, output_file='output/exchanges_output.csv')
-solve_all(dataset_with_redistribution, with_redistribution=True, output_file='output/exchanges_output_no_redistribution.csv')
+solve_all(dataset_without_redistribution, with_redistribution=False, output_file='output/exchanges_output_no_redistribution.csv')
+solve_all(dataset_with_redistribution, with_redistribution=True, output_file='output/exchanges_output.csv')

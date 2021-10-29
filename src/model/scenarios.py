@@ -117,6 +117,7 @@ class Scenario0DistributionSolver (DistributionSolver):
         G, h = self.add_non_negativity_constraint(G, h, k)
         # se não tiver rebalance ativado: estoque nunca pode diminuir
         if not self.allow_rebalance:
+            current_stock = self.grid.get_total_current_stock()
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
 
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
@@ -156,6 +157,7 @@ class Scenario1DistributionSolver (DistributionSolver):
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:
+            current_stock = self.grid.get_total_current_stock()
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h, A=A, b=b)
@@ -197,6 +199,7 @@ class Scenario2DistributionSolver (DistributionSolver):
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:
+            current_stock = self.grid.get_total_current_stock()
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
@@ -235,6 +238,7 @@ class Scenario3DistributionSolver (DistributionSolver):
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:
+            current_stock = self.grid.get_total_current_stock()[:-1]
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)
@@ -274,6 +278,7 @@ class Scenario4DistributionSolver (DistributionSolver):
         # nao negatividade
         G, h = self.add_non_negativity_constraint(G, h, k)
         if not self.allow_rebalance:
+            current_stock = self.grid.get_total_current_stock()
             G, h = self.add_all_x_larger_than_constraint(G, h, k, current_stock)
         
         x_opt = qpsolver.solve_qp(P, q, G=G, h=h)

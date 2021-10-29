@@ -23,7 +23,7 @@ def solve_all(solver, verbose=False, with_redistribution=True, output_file=None)
         # TODO: no hub
         if len(grid.hub) == 0:
             continue
-        balanceSolver = BalanceScenarioFactory.create(grid, scenario=scenario)
+        balanceSolver = BalanceScenarioFactory.create(grid, scenario=scenario, allow_redistribution=with_redistribution)
         balanceSolver.solve(qpsolver)
         x_opt_dist, x_opt_dep, x_opt_hub = balanceSolver.get_xopt_per_type()
 
