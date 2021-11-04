@@ -1,6 +1,7 @@
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import pandas as pd
 
 from math import cos, radians
@@ -33,6 +34,7 @@ def plot_stock_grid(data, position, supply_site_code,
     grid_table = data[(data['Supply Site Code'] == supply_site_code)]
     grid_table = grid_table[(grid_table['SKU'] == sku_code)]
 
+    stock_mean = []
     positions = {}
     labels = {}
     colors = []
@@ -47,10 +49,13 @@ def plot_stock_grid(data, position, supply_site_code,
     else:
         stock_index = grid_table.columns.to_list().index('Closing Stock')
     type_index = grid_table.columns.to_list().index('Location Type')
+    reorder_index = grid_table.columns.to_list().index('Reorder Point (Hl)')
 
     for row in grid_table.itertuples():
         location_code = row[location_index + 1]
-        stock = round(row[stock_index + 1])
+        stock = round(100 * row[stock_index + 1]
+                      / row[reorder_index + 1]) / 100
+        stock_mean.append(stock)
         type = row[type_index + 1]
 
         if location_code == supply_site_code:
@@ -70,6 +75,7 @@ def plot_stock_grid(data, position, supply_site_code,
         labels[location_code] = stock
 
     positions_nodes = shift_position(positions, 0, 500)
+    print(np.mean(stock_mean))
 
     grid = nx.Graph()
     for key, value in labels.items():
@@ -187,7 +193,7 @@ if __name__ == "__main__":
                            delimiter=';', decimal=',')
 
     # choose which grid to plot. The grid cannot be scenario 0
-    supply_site_code = 'PL-1505'
+    supply_site_code = 'PL-1721'
     sku_code = 85023
 
     # plots unbalanced grid, balanced grid, and exchange map
