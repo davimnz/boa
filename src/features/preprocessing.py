@@ -12,7 +12,9 @@ def clear_anomaly(data) -> None:
     """
     Deletes grid with min > max
     """
-    return data.drop(data[(data[SUPPLY_SITE_CODE_LABEL] == 'PL-1505') & (data[SKU_LABEL] == 92085)].index)
+    cleared_data = data.replace([np.inf, -np.inf], np.nan)
+    cleared_data = cleared_data.dropna()
+    return cleared_data.drop(cleared_data[(cleared_data[SUPPLY_SITE_CODE_LABEL] == 'PL-1505') & (cleared_data[SKU_LABEL] == 92085)].index)
 
 def generate_positions(raw_data,
                        max_latitude=51.3494, min_latitude=49.5677,
